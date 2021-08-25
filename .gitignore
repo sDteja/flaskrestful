@@ -1,0 +1,5 @@
+test.py
+createtables.py
+__py__cache/
+*.pyc
+.idea
