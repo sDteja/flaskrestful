@@ -7,7 +7,7 @@ from models.item import ItemModel
 class Item(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('price', type=float, required=True, help='Required field')
-    parser.add_argument('store_id', type=float, required=True, help='Required field')
+    parser.add_argument('store_id', type=str, required=True, help='Required field')
 
     @jwt_required()
     def get(self, name):
