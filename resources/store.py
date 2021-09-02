@@ -32,7 +32,7 @@ class Store(Resource):
 class StoreList(Resource):
 
     def get(self):
-        result = StoreModel.query.all()
+        result = StoreModel.find_all()
         if result is not None:
             return {'items': [store.json() for store in result]}
         return {'message': 'no items found'}

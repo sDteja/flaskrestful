@@ -1,4 +1,4 @@
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from flask_restful import Resource, reqparse
 
 from models.item import ItemModel
@@ -16,6 +16,7 @@ class Item(Resource):
             return item.json()
         return {'message': 'data not found'}, 404
 
+    @jwt_required(fresh=True)
     def post(self, name):
         item = ItemModel.find_by_name(name)
         if item:
@@ -38,7 +39,11 @@ class Item(Resource):
         item.save_to_db()
         return item.json()
 
+    @jwt_required()
     def delete(self, name):
+        claims = get_jwt()
+        if not claims['is_admin']:
+            return {'message': 'admin req'}, 401
         item = ItemModel.find_by_name(name)
         if item:
             item.delete_from_db()
@@ -46,8 +51,13 @@ class Item(Resource):
 
 class ItemList(Resource):
 
+    @jwt_required(optional=True)
     def get(self):
-        result = ItemModel.query.all()
+        user_id = get_jwt_identity()
+        result = ItemModel.find_all()
         if result is not None:
-            return {'items': [item.json() for item in result]}
+            items = [item.json() for item in result]
+            if user_id:
+                return {'items': items}, 200
+            return {'items': [item['name'] for item in items]}, 200
         return {'message': 'no items found'}
